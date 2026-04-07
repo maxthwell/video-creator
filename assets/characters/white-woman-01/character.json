@@ -1,0 +1,371 @@
+{
+  "display_name": "金发美女",
+  "gender_presentation": "feminine",
+  "tts_speaker_id": "zh-CN-XiaoxiaoNeural",
+  "model_style": "stickman",
+  "source_person_image": "assets/characters/white-woman-01/skins/source_reference.png",
+  "source_people_sheet": "assets/people/金发美女.webp",
+  "source_pose_track": "assets/people/.cache/poses/white-woman-01.pose.json",
+  "head_style": "panda_head_stickman",
+  "body_color": [
+    0.97,
+    0.97,
+    0.965,
+    1.0
+  ],
+  "body_secondary_color": [
+    0.12,
+    0.12,
+    0.12,
+    1.0
+  ],
+  "head_color": [
+    0.985,
+    0.985,
+    0.98,
+    1.0
+  ],
+  "bone_color": [
+    0.08,
+    0.08,
+    0.08,
+    1.0
+  ],
+  "accent_color": [
+    0.1,
+    0.1,
+    0.1,
+    1.0
+  ],
+  "white_model_profile": {
+    "head_scale": 0.1943,
+    "head_width_ratio": 0.1282,
+    "torso_width": 0.2412,
+    "torso_height_scale": 1.0,
+    "neck_width": 0.03,
+    "arm_width": 0.04,
+    "leg_width": 0.03,
+    "hand_width": 0.045,
+    "hand_height": 0.07,
+    "foot_width": 0.08,
+    "foot_height": 0.035,
+    "shoulder_span": 0.14,
+    "hip_span": 0.1,
+    "upper_arm_length": 0.1565,
+    "lower_arm_length": 0.1312,
+    "upper_leg_length": 0.2247,
+    "lower_leg_length": 0.2221,
+    "image_bbox": [
+      0,
+      5,
+      222,
+      793
+    ],
+    "visible_height_px": 788,
+    "chest_width_px": 173,
+    "waist_width_px": 221,
+    "hip_width_px": 115,
+    "head_width_px": 101,
+    "thigh_width_px": 86,
+    "calf_width_px": 74,
+    "ankle_width_px": 59,
+    "silhouette_rows": [
+      {
+        "t": 0.0,
+        "width_ratio": 0.0038,
+        "center_offset_ratio": 0.0013,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.0213,
+        "width_ratio": 0.0926,
+        "center_offset_ratio": -0.0013,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.0426,
+        "width_ratio": 0.118,
+        "center_offset_ratio": -0.0025,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.0638,
+        "width_ratio": 0.1218,
+        "center_offset_ratio": -0.0006,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.0851,
+        "width_ratio": 0.1231,
+        "center_offset_ratio": 0.0013,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.1064,
+        "width_ratio": 0.1332,
+        "center_offset_ratio": 0.0013,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.1277,
+        "width_ratio": 0.1434,
+        "center_offset_ratio": -0.0076,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.1489,
+        "width_ratio": 0.1662,
+        "center_offset_ratio": -0.0038,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.1702,
+        "width_ratio": 0.1574,
+        "center_offset_ratio": 0.0006,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.1915,
+        "width_ratio": 0.1612,
+        "center_offset_ratio": 0.0076,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.2128,
+        "width_ratio": 0.1853,
+        "center_offset_ratio": -0.0006,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.234,
+        "width_ratio": 0.1954,
+        "center_offset_ratio": 0.0006,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.2553,
+        "width_ratio": 0.1992,
+        "center_offset_ratio": -0.0013,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.2766,
+        "width_ratio": 0.203,
+        "center_offset_ratio": -0.0006,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.2979,
+        "width_ratio": 0.2107,
+        "center_offset_ratio": -0.0019,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.3191,
+        "width_ratio": 0.2132,
+        "center_offset_ratio": -0.0006,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.3404,
+        "width_ratio": 0.2195,
+        "center_offset_ratio": -0.0013,
+        "segment_count": 3.0
+      },
+      {
+        "t": 0.3617,
+        "width_ratio": 0.2284,
+        "center_offset_ratio": -0.0019,
+        "segment_count": 3.0
+      },
+      {
+        "t": 0.383,
+        "width_ratio": 0.236,
+        "center_offset_ratio": -0.0006,
+        "segment_count": 3.0
+      },
+      {
+        "t": 0.4043,
+        "width_ratio": 0.2449,
+        "center_offset_ratio": 0.0,
+        "segment_count": 3.0
+      },
+      {
+        "t": 0.4255,
+        "width_ratio": 0.2513,
+        "center_offset_ratio": -0.0019,
+        "segment_count": 3.0
+      },
+      {
+        "t": 0.4468,
+        "width_ratio": 0.2602,
+        "center_offset_ratio": -0.0025,
+        "segment_count": 3.0
+      },
+      {
+        "t": 0.4681,
+        "width_ratio": 0.2741,
+        "center_offset_ratio": -0.0044,
+        "segment_count": 3.0
+      },
+      {
+        "t": 0.4894,
+        "width_ratio": 0.2792,
+        "center_offset_ratio": -0.0019,
+        "segment_count": 3.0
+      },
+      {
+        "t": 0.5106,
+        "width_ratio": 0.2805,
+        "center_offset_ratio": -0.0013,
+        "segment_count": 3.0
+      },
+      {
+        "t": 0.5319,
+        "width_ratio": 0.2817,
+        "center_offset_ratio": -0.0006,
+        "segment_count": 4.0
+      },
+      {
+        "t": 0.5532,
+        "width_ratio": 0.2805,
+        "center_offset_ratio": -0.0013,
+        "segment_count": 4.0
+      },
+      {
+        "t": 0.5745,
+        "width_ratio": 0.2754,
+        "center_offset_ratio": -0.0038,
+        "segment_count": 4.0
+      },
+      {
+        "t": 0.5957,
+        "width_ratio": 0.2005,
+        "center_offset_ratio": 0.0235,
+        "segment_count": 3.0
+      },
+      {
+        "t": 0.617,
+        "width_ratio": 0.1421,
+        "center_offset_ratio": -0.0006,
+        "segment_count": 2.0
+      },
+      {
+        "t": 0.6383,
+        "width_ratio": 0.1307,
+        "center_offset_ratio": -0.0013,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.6596,
+        "width_ratio": 0.1218,
+        "center_offset_ratio": -0.0006,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.6809,
+        "width_ratio": 0.1104,
+        "center_offset_ratio": -0.0013,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.7021,
+        "width_ratio": 0.1091,
+        "center_offset_ratio": -0.0019,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.7234,
+        "width_ratio": 0.1129,
+        "center_offset_ratio": -0.0013,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.7447,
+        "width_ratio": 0.1168,
+        "center_offset_ratio": -0.0006,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.766,
+        "width_ratio": 0.1168,
+        "center_offset_ratio": -0.0006,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.7872,
+        "width_ratio": 0.1079,
+        "center_offset_ratio": -0.0013,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.8085,
+        "width_ratio": 0.1003,
+        "center_offset_ratio": -0.0013,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.8298,
+        "width_ratio": 0.0939,
+        "center_offset_ratio": 0.0006,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.8511,
+        "width_ratio": 0.0838,
+        "center_offset_ratio": -0.0006,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.8723,
+        "width_ratio": 0.0749,
+        "center_offset_ratio": 0.0,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.8936,
+        "width_ratio": 0.0685,
+        "center_offset_ratio": -0.0019,
+        "segment_count": 2.0
+      },
+      {
+        "t": 0.9149,
+        "width_ratio": 0.0673,
+        "center_offset_ratio": -0.0013,
+        "segment_count": 2.0
+      },
+      {
+        "t": 0.9362,
+        "width_ratio": 0.0711,
+        "center_offset_ratio": -0.0006,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.9574,
+        "width_ratio": 0.085,
+        "center_offset_ratio": -0.0013,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.9787,
+        "width_ratio": 0.099,
+        "center_offset_ratio": -0.0006,
+        "segment_count": 1.0
+      },
+      {
+        "t": 1.0,
+        "width_ratio": 0.0584,
+        "center_offset_ratio": -0.0006,
+        "segment_count": 2.0
+      }
+    ]
+  },
+  "reference_assets": {
+    "source_reference": "assets/characters/white-woman-01/skins/source_reference.png",
+    "source_mask": "assets/characters/white-woman-01/skins/source_mask.png",
+    "source_back_reference": "assets/characters/white-woman-01/skins/source_back_reference.png"
+  },
+  "hmr2_mesh_asset_path": "assets/characters/white-woman-01/hmr2_mesh/body_hmr2.obj",
+  "hmr2_params_path": "assets/characters/white-woman-01/hmr2_mesh/hmr2_params.json",
+  "hmr2_texture_path": "assets/characters/white-woman-01/hmr2_mesh/source_texture.png"
+}

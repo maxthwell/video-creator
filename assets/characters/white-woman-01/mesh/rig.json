@@ -1,0 +1,143 @@
+{
+  "joints": {
+    "nose": [
+      0.026175,
+      0.0,
+      1.61249
+    ],
+    "left_shoulder": [
+      0.252635,
+      0.0,
+      1.336174
+    ],
+    "right_shoulder": [
+      -0.194304,
+      0.0,
+      1.342496
+    ],
+    "left_elbow": [
+      0.333297,
+      0.0,
+      1.018446
+    ],
+    "right_elbow": [
+      -0.33012,
+      0.0,
+      1.047397
+    ],
+    "left_wrist": [
+      0.104573,
+      0.0,
+      0.891285
+    ],
+    "right_wrist": [
+      -0.126482,
+      0.0,
+      0.907907
+    ],
+    "left_hip": [
+      0.142084,
+      0.0,
+      0.699329
+    ],
+    "right_hip": [
+      -0.142084,
+      0.0,
+      0.70067
+    ],
+    "left_knee": [
+      0.11636,
+      0.0,
+      0.190797
+    ],
+    "right_knee": [
+      -0.069476,
+      0.0,
+      0.188634
+    ],
+    "left_ankle": [
+      0.082762,
+      0.0,
+      -0.303759
+    ],
+    "right_ankle": [
+      0.018853,
+      0.0,
+      -0.285945
+    ],
+    "pelvis": [
+      0.0,
+      0.0,
+      0.7
+    ],
+    "chest": [
+      0.029166,
+      0.0,
+      1.339335
+    ],
+    "neck": [
+      0.027969,
+      0.0,
+      1.448597
+    ],
+    "head": [
+      0.026175,
+      0.0,
+      1.67249
+    ]
+  },
+  "bones": [
+    [
+      "pelvis",
+      "left_hip"
+    ],
+    [
+      "pelvis",
+      "right_hip"
+    ],
+    [
+      "pelvis",
+      "chest"
+    ],
+    [
+      "chest",
+      "neck"
+    ],
+    [
+      "neck",
+      "head"
+    ],
+    [
+      "left_shoulder",
+      "left_elbow"
+    ],
+    [
+      "left_elbow",
+      "left_wrist"
+    ],
+    [
+      "right_shoulder",
+      "right_elbow"
+    ],
+    [
+      "right_elbow",
+      "right_wrist"
+    ],
+    [
+      "left_hip",
+      "left_knee"
+    ],
+    [
+      "left_knee",
+      "left_ankle"
+    ],
+    [
+      "right_hip",
+      "right_knee"
+    ],
+    [
+      "right_knee",
+      "right_ankle"
+    ]
+  ]
+}

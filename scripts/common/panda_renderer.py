@@ -103,6 +103,9 @@ class PandaSceneRenderer:
         self.effects = manifest_index("effects")
         self.story = story
         self.cast = {item["id"]: item for item in story["cast"]}
+        self.force_pose_skeleton = bool(story["video"].get("force_pose_skeleton", False))
+        self.show_outfit_overlay = bool(story["video"].get("show_outfit_overlay", True))
+        self.show_head_overlay = bool(story["video"].get("show_head_overlay", True))
         self.actor_ground_offset = float(story["video"].get("actor_ground_offset", 0.0) or 0.0)
         self.actor_front_bias = float(story["video"].get("actor_front_bias", 0.90) or 0.90)
         self.actor_scale_base = float(story["video"].get("actor_scale_base", 0.667) or 0.667)
@@ -1202,7 +1205,8 @@ class PandaSceneRenderer:
         speaking: bool,
     ) -> None:
         points = self._body_points(motion, mirror, time_ms)
-        show_bones = bool(character.get("show_bones", False))
+        show_bones = self.force_pose_skeleton or bool(character.get("show_bones", False))
+        show_skin = not self.force_pose_skeleton
         bone_segments = [
             ("spine-lower", "pelvis", "chest"),
             ("spine-upper", "chest", "neck"),
@@ -1270,6 +1274,7 @@ class PandaSceneRenderer:
                 width,
                 render_color,
                 texture=texture,
+                visible=show_skin,
             )
 
         self._update_card_node(
@@ -1278,6 +1283,7 @@ class PandaSceneRenderer:
             0.16,
             (points["pelvis"][0], -0.02, points["pelvis"][1] + 0.02),
             palette["accent"],
+            visible=show_skin,
         )
         for hand_key in ("hand_left", "hand_right"):
             self._update_joint_node(
@@ -1286,6 +1292,7 @@ class PandaSceneRenderer:
                 0.12,
                 palette["face"],
                 texture=runtime["joint_texture_large"],
+                visible=show_skin,
             )
         for foot_key in ("foot_left", "foot_right"):
             self._update_joint_node(
@@ -1294,9 +1301,10 @@ class PandaSceneRenderer:
                 0.14,
                 palette["patch"],
                 texture=runtime["joint_texture_large"],
+                visible=show_skin,
             )
 
-        outfit_texture = self._texture_at_time(self._outfit_skin_path(character), time_ms)
+        outfit_texture = self._texture_at_time(self._outfit_skin_path(character), time_ms) if self.show_outfit_overlay else None
         shoulder_span = abs(points["shoulder_right"][0] - points["shoulder_left"][0])
         hip_span = abs(points["hip_right"][0] - points["hip_left"][0])
         torso_width = max(0.58, max(shoulder_span * 0.82, hip_span * 1.08))
@@ -1336,6 +1344,41 @@ class PandaSceneRenderer:
         head_root.setR(head_angle)
         head_radius_x = 0.58
         head_radius_z = 0.44
+        if not self.show_head_overlay:
+            self._update_card_node(
+                runtime["head"],
+                0.34,
+                0.34,
+                (0.0, 0.0, 0.0),
+                palette["bone"],
+                texture=runtime["circle_texture_head"],
+            )
+            for node_name in (
+                "face_core",
+                "headband",
+                "headband_tag",
+                "head_radius",
+                "face_skin",
+                "ear_left",
+                "ear_right",
+                "patch_left",
+                "patch_right",
+                "eye_white_left",
+                "eye_white_right",
+                "pupil_left",
+                "pupil_right",
+                "brow_left",
+                "brow_right",
+                "nose",
+                "muzzle",
+                "cheek_left",
+                "cheek_right",
+                "mouth",
+                "tongue",
+                "sweat",
+            ):
+                runtime[node_name].hide()
+            return
         self._update_card_node(
             runtime["head"],
             head_radius_x * 2.0,

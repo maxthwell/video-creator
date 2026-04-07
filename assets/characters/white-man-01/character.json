@@ -1,0 +1,371 @@
+{
+  "display_name": "正常男性",
+  "gender_presentation": "masculine",
+  "tts_speaker_id": "zh-CN-YunxiNeural",
+  "model_style": "stickman",
+  "source_person_image": "assets/characters/white-man-01/skins/source_reference.png",
+  "source_people_sheet": "assets/people/正常男性.png",
+  "source_pose_track": "assets/people/.cache/poses/white-man-01.pose.json",
+  "head_style": "panda_head_stickman",
+  "body_color": [
+    0.97,
+    0.97,
+    0.965,
+    1.0
+  ],
+  "body_secondary_color": [
+    0.12,
+    0.12,
+    0.12,
+    1.0
+  ],
+  "head_color": [
+    0.985,
+    0.985,
+    0.98,
+    1.0
+  ],
+  "bone_color": [
+    0.08,
+    0.08,
+    0.08,
+    1.0
+  ],
+  "accent_color": [
+    0.1,
+    0.1,
+    0.1,
+    1.0
+  ],
+  "white_model_profile": {
+    "head_scale": 0.2224,
+    "head_width_ratio": 0.1364,
+    "torso_width": 0.3362,
+    "torso_height_scale": 1.0,
+    "neck_width": 0.03,
+    "arm_width": 0.055,
+    "leg_width": 0.03,
+    "hand_width": 0.0485,
+    "hand_height": 0.0727,
+    "foot_width": 0.08,
+    "foot_height": 0.035,
+    "shoulder_span": 0.1729,
+    "hip_span": 0.1117,
+    "upper_arm_length": 0.1604,
+    "lower_arm_length": 0.1162,
+    "upper_leg_length": 0.2134,
+    "lower_leg_length": 0.1944,
+    "image_bbox": [
+      19,
+      24,
+      157,
+      354
+    ],
+    "visible_height_px": 330,
+    "chest_width_px": 100,
+    "waist_width_px": 129,
+    "hip_width_px": 61,
+    "head_width_px": 45,
+    "thigh_width_px": 54,
+    "calf_width_px": 20,
+    "ankle_width_px": 28,
+    "silhouette_rows": [
+      {
+        "t": 0.0,
+        "width_ratio": 0.0242,
+        "center_offset_ratio": -0.0167,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.0213,
+        "width_ratio": 0.1061,
+        "center_offset_ratio": -0.0091,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.0426,
+        "width_ratio": 0.1273,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.0638,
+        "width_ratio": 0.1394,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.0851,
+        "width_ratio": 0.1364,
+        "center_offset_ratio": -0.0121,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.1064,
+        "width_ratio": 0.1394,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.1277,
+        "width_ratio": 0.1273,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.1489,
+        "width_ratio": 0.0909,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.1702,
+        "width_ratio": 0.0667,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.1915,
+        "width_ratio": 0.0727,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.2128,
+        "width_ratio": 0.2121,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.234,
+        "width_ratio": 0.2606,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.2553,
+        "width_ratio": 0.2727,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.2766,
+        "width_ratio": 0.2848,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.2979,
+        "width_ratio": 0.2909,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.3191,
+        "width_ratio": 0.297,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.3404,
+        "width_ratio": 0.303,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.3617,
+        "width_ratio": 0.303,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.383,
+        "width_ratio": 0.303,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.4043,
+        "width_ratio": 0.3152,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.4255,
+        "width_ratio": 0.3212,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.4468,
+        "width_ratio": 0.3848,
+        "center_offset_ratio": 0.0182,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.4681,
+        "width_ratio": 0.3879,
+        "center_offset_ratio": 0.0167,
+        "segment_count": 2.0
+      },
+      {
+        "t": 0.4894,
+        "width_ratio": 0.3909,
+        "center_offset_ratio": 0.0152,
+        "segment_count": 3.0
+      },
+      {
+        "t": 0.5106,
+        "width_ratio": 0.3667,
+        "center_offset_ratio": -0.0061,
+        "segment_count": 3.0
+      },
+      {
+        "t": 0.5319,
+        "width_ratio": 0.3879,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 3.0
+      },
+      {
+        "t": 0.5532,
+        "width_ratio": 0.3939,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 3.0
+      },
+      {
+        "t": 0.5745,
+        "width_ratio": 0.3697,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 3.0
+      },
+      {
+        "t": 0.5957,
+        "width_ratio": 0.3636,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 3.0
+      },
+      {
+        "t": 0.617,
+        "width_ratio": 0.1818,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.6383,
+        "width_ratio": 0.1758,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.6596,
+        "width_ratio": 0.1697,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.6809,
+        "width_ratio": 0.1697,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.7021,
+        "width_ratio": 0.1636,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.7234,
+        "width_ratio": 0.1606,
+        "center_offset_ratio": -0.0091,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.7447,
+        "width_ratio": 0.1636,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.766,
+        "width_ratio": 0.1636,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.7872,
+        "width_ratio": 0.1636,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.8085,
+        "width_ratio": 0.1576,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 1.0
+      },
+      {
+        "t": 0.8298,
+        "width_ratio": 0.1515,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 2.0
+      },
+      {
+        "t": 0.8511,
+        "width_ratio": 0.1455,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 2.0
+      },
+      {
+        "t": 0.8723,
+        "width_ratio": 0.1455,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 2.0
+      },
+      {
+        "t": 0.8936,
+        "width_ratio": 0.1455,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 2.0
+      },
+      {
+        "t": 0.9149,
+        "width_ratio": 0.1697,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 2.0
+      },
+      {
+        "t": 0.9362,
+        "width_ratio": 0.2061,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 2.0
+      },
+      {
+        "t": 0.9574,
+        "width_ratio": 0.2303,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 2.0
+      },
+      {
+        "t": 0.9787,
+        "width_ratio": 0.2242,
+        "center_offset_ratio": -0.0106,
+        "segment_count": 2.0
+      },
+      {
+        "t": 1.0,
+        "width_ratio": 0.003,
+        "center_offset_ratio": -0.097,
+        "segment_count": 1.0
+      }
+    ]
+  },
+  "reference_assets": {
+    "source_reference": "assets/characters/white-man-01/skins/source_reference.png",
+    "source_mask": "assets/characters/white-man-01/skins/source_mask.png",
+    "source_back_reference": "assets/characters/white-man-01/skins/source_back_reference.png"
+  },
+  "hmr2_mesh_asset_path": "assets/characters/white-man-01/hmr2_mesh/body_hmr2.obj",
+  "hmr2_params_path": "assets/characters/white-man-01/hmr2_mesh/hmr2_params.json",
+  "hmr2_texture_path": "assets/characters/white-man-01/hmr2_mesh/source_texture.png"
+}

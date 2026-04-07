@@ -1,0 +1,37 @@
+{
+  "display_name": "13",
+  "gender_presentation": "feminine",
+  "tts_speaker_id": "zh-CN-XiaoxiaoNeural",
+  "head_style": "expressive_head",
+  "head_anchor": {
+    "offset": [
+      0,
+      -10
+    ],
+    "scale": 1.0
+  },
+  "source_face_image": "assets/faces/13.jpg",
+  "detected_face_count": 9,
+  "generated_face_skins": [
+    "assets/characters/face-13/skins/face_default.png",
+    "assets/characters/face-13/skins/face_neutral.png",
+    "assets/characters/face-13/skins/face_smile.png",
+    "assets/characters/face-13/skins/face_talk_neutral_closed.png",
+    "assets/characters/face-13/skins/face_talk_neutral_open.png",
+    "assets/characters/face-13/skins/face_talk_smile_closed.png",
+    "assets/characters/face-13/skins/face_talk_smile_open.png"
+  ],
+  "emotion_distribution": {
+    "neutral": 6,
+    "happy": 3
+  },
+  "demographics_estimate": {
+    "age_group": "3-9",
+    "age_confidence": 1.0,
+    "gender": "feminine",
+    "gender_confidence": 1.0,
+    "race": "white",
+    "race_confidence": 1.0,
+    "is_estimated": true
+  }
+}

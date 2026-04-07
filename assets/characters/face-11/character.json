@@ -1,0 +1,45 @@
+{
+  "display_name": "11",
+  "gender_presentation": "masculine",
+  "tts_speaker_id": "zh-CN-YunxiNeural",
+  "head_style": "expressive_head",
+  "head_anchor": {
+    "offset": [
+      0,
+      -10
+    ],
+    "scale": 1.0
+  },
+  "source_face_image": "assets/faces/11.jpg",
+  "detected_face_count": 16,
+  "generated_face_skins": [
+    "assets/characters/face-11/skins/face_angry.png",
+    "assets/characters/face-11/skins/face_default.png",
+    "assets/characters/face-11/skins/face_excited.png",
+    "assets/characters/face-11/skins/face_neutral.png",
+    "assets/characters/face-11/skins/face_sad.png",
+    "assets/characters/face-11/skins/face_smile.png",
+    "assets/characters/face-11/skins/face_talk_angry_closed.png",
+    "assets/characters/face-11/skins/face_talk_angry_open.png",
+    "assets/characters/face-11/skins/face_talk_neutral_closed.png",
+    "assets/characters/face-11/skins/face_talk_neutral_open.png",
+    "assets/characters/face-11/skins/face_talk_smile_closed.png",
+    "assets/characters/face-11/skins/face_talk_smile_open.png"
+  ],
+  "emotion_distribution": {
+    "angry": 1,
+    "happy": 3,
+    "neutral": 10,
+    "sad": 1,
+    "excited": 1
+  },
+  "demographics_estimate": {
+    "age_group": "3-9",
+    "age_confidence": 0.9381,
+    "gender": "masculine",
+    "gender_confidence": 0.9381,
+    "race": "white",
+    "race_confidence": 0.9381,
+    "is_estimated": true
+  }
+}

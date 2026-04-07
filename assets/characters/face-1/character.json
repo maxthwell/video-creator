@@ -1,0 +1,43 @@
+{
+  "display_name": "1",
+  "gender_presentation": "masculine",
+  "tts_speaker_id": "zh-CN-YunxiNeural",
+  "head_style": "expressive_head",
+  "head_anchor": {
+    "offset": [
+      0,
+      -10
+    ],
+    "scale": 1.0
+  },
+  "source_face_image": "assets/faces/1.jpg",
+  "detected_face_count": 10,
+  "generated_face_skins": [
+    "assets/characters/face-1/skins/face_angry.png",
+    "assets/characters/face-1/skins/face_default.png",
+    "assets/characters/face-1/skins/face_excited.png",
+    "assets/characters/face-1/skins/face_neutral.png",
+    "assets/characters/face-1/skins/face_skeptical.png",
+    "assets/characters/face-1/skins/face_talk_angry_closed.png",
+    "assets/characters/face-1/skins/face_talk_angry_open.png",
+    "assets/characters/face-1/skins/face_talk_neutral_closed.png",
+    "assets/characters/face-1/skins/face_talk_neutral_open.png",
+    "assets/characters/face-1/skins/face_talk_skeptical_closed.png",
+    "assets/characters/face-1/skins/face_talk_skeptical_open.png"
+  ],
+  "emotion_distribution": {
+    "excited": 2,
+    "neutral": 3,
+    "angry": 4,
+    "skeptical": 1
+  },
+  "demographics_estimate": {
+    "age_group": "20-29",
+    "age_confidence": 0.701,
+    "gender": "masculine",
+    "gender_confidence": 1.0,
+    "race": "latino_hispanic",
+    "race_confidence": 1.0,
+    "is_estimated": true
+  }
+}

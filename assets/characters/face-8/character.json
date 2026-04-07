@@ -1,0 +1,43 @@
+{
+  "display_name": "8",
+  "gender_presentation": "feminine",
+  "tts_speaker_id": "zh-CN-XiaoxiaoNeural",
+  "head_style": "expressive_head",
+  "head_anchor": {
+    "offset": [
+      0,
+      -10
+    ],
+    "scale": 1.0
+  },
+  "source_face_image": "assets/faces/8.jpg",
+  "detected_face_count": 12,
+  "generated_face_skins": [
+    "assets/characters/face-8/skins/face_angry.png",
+    "assets/characters/face-8/skins/face_default.png",
+    "assets/characters/face-8/skins/face_excited.png",
+    "assets/characters/face-8/skins/face_neutral.png",
+    "assets/characters/face-8/skins/face_smile.png",
+    "assets/characters/face-8/skins/face_talk_angry_closed.png",
+    "assets/characters/face-8/skins/face_talk_angry_open.png",
+    "assets/characters/face-8/skins/face_talk_neutral_closed.png",
+    "assets/characters/face-8/skins/face_talk_neutral_open.png",
+    "assets/characters/face-8/skins/face_talk_smile_closed.png",
+    "assets/characters/face-8/skins/face_talk_smile_open.png"
+  ],
+  "emotion_distribution": {
+    "excited": 1,
+    "happy": 7,
+    "neutral": 3,
+    "angry": 1
+  },
+  "demographics_estimate": {
+    "age_group": "20-29",
+    "age_confidence": 0.8327,
+    "gender": "feminine",
+    "gender_confidence": 1.0,
+    "race": "white",
+    "race_confidence": 0.7511,
+    "is_estimated": true
+  }
+}

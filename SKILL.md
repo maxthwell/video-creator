@@ -1,6 +1,13 @@
 ---
 name: pygame-agent-video
-description: Create or render local multi-scene videos with this skill. Use when the user wants a story video, action showcase, dialogue video, TTS video, BGM/effects/audio mixing, or needs an existing `scripts/generate_*.py` video script edited or executed. This skill is optimized for weak models: always start from `scripts/agent_ready.py` or `scripts/list_assets.py`, use only local asset ids, prefer editing an existing generator script over inventing a new format, and run the generator script directly to produce the mp4.
+description: >-
+  Create or render local multi-scene videos with this skill. Use when the user
+  wants a story video, action showcase, dialogue video, TTS video,
+  BGM/effects/audio mixing, or needs an existing `scripts/generate_*.py` video
+  script edited or executed. This skill is optimized for weak models: always
+  start from `scripts/agent_ready.py` or `scripts/list_assets.py`, use only
+  local asset ids, prefer editing an existing generator script over inventing a
+  new format, and run the generator script directly to produce the mp4.
 ---
 
 # Pygame Agent Video

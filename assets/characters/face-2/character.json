@@ -1,0 +1,39 @@
+{
+  "display_name": "2",
+  "gender_presentation": "masculine",
+  "tts_speaker_id": "zh-CN-YunxiNeural",
+  "head_style": "expressive_head",
+  "head_anchor": {
+    "offset": [
+      0,
+      -10
+    ],
+    "scale": 1.0
+  },
+  "source_face_image": "assets/faces/2.webp",
+  "detected_face_count": 8,
+  "generated_face_skins": [
+    "assets/characters/face-2/skins/face_default.png",
+    "assets/characters/face-2/skins/face_neutral.png",
+    "assets/characters/face-2/skins/face_sad.png",
+    "assets/characters/face-2/skins/face_smile.png",
+    "assets/characters/face-2/skins/face_talk_neutral_closed.png",
+    "assets/characters/face-2/skins/face_talk_neutral_open.png",
+    "assets/characters/face-2/skins/face_talk_smile_closed.png",
+    "assets/characters/face-2/skins/face_talk_smile_open.png"
+  ],
+  "emotion_distribution": {
+    "happy": 1,
+    "neutral": 6,
+    "sad": 1
+  },
+  "demographics_estimate": {
+    "age_group": "30-39",
+    "age_confidence": 0.6248,
+    "gender": "masculine",
+    "gender_confidence": 1.0,
+    "race": "east_asian",
+    "race_confidence": 1.0,
+    "is_estimated": true
+  }
+}
