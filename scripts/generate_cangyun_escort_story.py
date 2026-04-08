@@ -1169,6 +1169,8 @@ def _render_scene_video(
 
 
 def _mux_scene(video_path: Path, audio_path: Path, output_path: Path) -> None:
+    temp_output = output_path.with_name(f"{output_path.stem}.tmp{output_path.suffix}")
+    temp_output.unlink(missing_ok=True)
     subprocess.run(
         [
             _ffmpeg(),
@@ -1184,10 +1186,11 @@ def _mux_scene(video_path: Path, audio_path: Path, output_path: Path) -> None:
             "-b:a",
             "128k",
             "-shortest",
-            str(output_path),
+            str(temp_output),
         ],
         check=True,
     )
+    temp_output.replace(output_path)
 
 
 def _concat_scenes(
@@ -1203,8 +1206,10 @@ def _concat_scenes(
         for path in scene_files:
             handle.write(f"file '{path.resolve()}'\n")
         concat_list = Path(handle.name)
+    temp_output = output_path.with_name(f"{output_path.stem}.tmp{output_path.suffix}")
     try:
         preset, crf = poseviz._encoding_profile(fast=fast, fast2=fast2, fast3=fast3)
+        temp_output.unlink(missing_ok=True)
         subprocess.run(
             [
                 _ffmpeg(),
@@ -1233,10 +1238,13 @@ def _concat_scenes(
                 "128k",
                 "-af",
                 "aresample=async=1:first_pts=0",
-                str(output_path),
+                "-max_muxing_queue_size",
+                "4096",
+                str(temp_output),
             ],
             check=True,
         )
+        temp_output.replace(output_path)
     finally:
         concat_list.unlink(missing_ok=True)
 

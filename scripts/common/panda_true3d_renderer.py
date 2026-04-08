@@ -552,7 +552,7 @@ class PandaTrue3DRenderer:
         try:
             stat = Path(path).stat()
             bg_version = PROP_WHITE_BG_VERSION if (is_prop_asset or is_character_asset) else 0
-            face_crop_version = 2 if is_face_asset else 0
+            face_crop_version = 8 if is_face_asset else 0
             cache_key = f"{path}|{stat.st_size}|{int(stat.st_mtime_ns)}|propbgv={bg_version}|facecrop={face_crop_version}"
         except OSError:
             cache_key = path
@@ -622,11 +622,11 @@ class PandaTrue3DRenderer:
         left, top, right, bottom = bbox
         width = right - left
         height = bottom - top
-        crop_width = max(1, int(round(width * 0.82)))
-        crop_height = max(1, int(round(min(height * 0.72, max(width * 0.62, height * 0.56)))))
+        crop_width = max(1, int(round(width * 0.90)))
+        crop_height = max(1, int(round(min(height * 0.78, max(width * 0.68, height * 0.60)))))
         cx = (left + right) * 0.5
         x0 = int(round(cx - crop_width * 0.5))
-        y0 = int(round(top + max(0.0, (height - crop_height) * 0.02)))
+        y0 = int(round(top + max(0.0, (height - crop_height) * 0.22)))
         x1 = x0 + crop_width
         y1 = y0 + crop_height
         if x0 < 0:
@@ -645,13 +645,24 @@ class PandaTrue3DRenderer:
             y1 = image.height
         cropped = image.crop((x0, y0, x1, y1)).convert("RGBA")
         target_size = (240, 184)
-        cropped = cropped.resize(target_size, Image.Resampling.LANCZOS)
+        scale = min(
+            target_size[0] / max(1, cropped.width),
+            target_size[1] / max(1, cropped.height),
+            1.0,
+        )
+        resized_width = max(1, int(round(cropped.width * scale)))
+        resized_height = max(1, int(round(cropped.height * scale)))
+        resized = cropped.resize((resized_width, resized_height), Image.Resampling.LANCZOS)
+        composed = Image.new("RGBA", target_size, (0, 0, 0, 0))
+        paste_x = (target_size[0] - resized_width) // 2
+        paste_y = max(0, int(round((target_size[1] - resized_height) * 0.18)))
+        composed.alpha_composite(resized, (paste_x, paste_y))
         mask = Image.new("L", target_size, 0)
         draw = ImageDraw.Draw(mask)
         draw.ellipse((0, 0, max(0, target_size[0] - 1), max(0, target_size[1] - 1)), fill=255)
-        cropped_alpha = cropped.getchannel("A")
-        cropped.putalpha(ImageChops.multiply(cropped_alpha, mask))
-        return cropped
+        composed_alpha = composed.getchannel("A")
+        composed.putalpha(ImageChops.multiply(composed_alpha, mask))
+        return composed
 
     @staticmethod
     def _is_near_white(pixel: tuple[int, int, int, int]) -> bool:
@@ -1643,10 +1654,10 @@ class PandaTrue3DRenderer:
         self._apply_texture(neck, self._rounded_rect_texture("torso-neck-mask", (34, 112), 16, alpha=1.0))
         neck.setColor(*head_color)
         head_rotation = -body_state["head_r"]
-        face_vertical_offset = -0.08
+        face_vertical_offset = 0.0
         head_base.setColor(*head_color)
         head_base.setPos(head_center[0], 0.01, head_center[1])
-        head_base.setR(head_rotation)
+        head_base.setR(-head_rotation)
         face.setPos(head_center[0], 0.03, head_center[1] + face_vertical_offset)
         face.setR(-head_rotation)
         left_ear_offset = self._rotate_offset(-0.33 * facing_sign, 0.36, head_rotation)
