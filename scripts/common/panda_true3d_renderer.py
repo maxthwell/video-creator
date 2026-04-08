@@ -552,7 +552,7 @@ class PandaTrue3DRenderer:
         try:
             stat = Path(path).stat()
             bg_version = PROP_WHITE_BG_VERSION if (is_prop_asset or is_character_asset) else 0
-            face_crop_version = 10 if is_face_asset else 0
+            face_crop_version = 11 if is_face_asset else 0
             cache_key = f"{path}|{stat.st_size}|{int(stat.st_mtime_ns)}|propbgv={bg_version}|facecrop={face_crop_version}"
         except OSError:
             cache_key = path
@@ -1323,7 +1323,7 @@ class PandaTrue3DRenderer:
             self._apply_texture(pelvis_card, self._rounded_rect_texture(f"pelvis-{actor_id}", (32, 32), 16, alpha=0.0))
             self._apply_texture(neck_card, self._rounded_rect_texture(f"neck-{actor_id}", (34, 112), 16, alpha=1.0))
             self._apply_texture(head_base, self._shape_texture(f"head-{actor_id}", (240, 184), alpha=1.0))
-            face_card = self._attach_card(actor_root, 0.98, 0.82, f"face-{actor_id}", (0.0, 0.03, 2.08), (1.0, 1.0, 1.0, 1.0))
+            face_card = self._attach_card(actor_root, 0.735, 0.615, f"face-{actor_id}", (0.0, 0.03, 2.08), (1.0, 1.0, 1.0, 1.0))
             ear_left = self._attach_card(actor_root, 0.42, 0.42, f"ear-left-{actor_id}", (-0.27, -0.02, 2.40), (0.08, 0.08, 0.08, 1.0))
             ear_right = self._attach_card(actor_root, 0.42, 0.42, f"ear-right-{actor_id}", (0.27, -0.02, 2.40), (0.08, 0.08, 0.08, 1.0))
             joints = {}
