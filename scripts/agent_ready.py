@@ -1,64 +1,71 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import importlib
 import os
-import shutil
+import py_compile
 import sys
 from pathlib import Path
 
-os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
-
 from common.io import ROOT_DIR, asset_catalog
-from common.story import load_and_normalize_story, validate_story_package
 
 
-EXAMPLE_SCRIPT = Path("scripts/generate_hanjiang_night_escort_story.py")
+MAIN_SCRIPT = Path("scripts/generate_cangyun_escort_story.py")
+POSE_SCRIPT = Path("scripts/generate_actions_pose_reconstruction.py")
+EXTRACT_SCRIPT = Path("scripts/extract_action_poses.py")
+POSE_DIR = Path("assets/actions/.cache/poses")
 
 
-def _check_modules() -> list[str]:
-    missing: list[str] = []
-    for module_name in ("pygame", "PIL"):
-        try:
-            importlib.import_module(module_name)
-        except ModuleNotFoundError:
-            missing.append(module_name)
-    if shutil.which("ffmpeg") is None:
-        missing.append("ffmpeg")
-    return missing
+def _compile(path: Path) -> tuple[bool, str]:
+    try:
+        py_compile.compile(str(path), doraise=True)
+    except py_compile.PyCompileError as exc:
+        return False, str(exc)
+    return True, "ok"
 
 
 def main() -> int:
+    os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
     print(f"root={ROOT_DIR}")
     print(f"ready_script={Path(__file__).resolve()}")
 
-    missing = _check_modules()
-    if missing:
-        print(f"status=not-ready missing={','.join(missing)}")
-        return 1
-
     catalog = asset_catalog()
-    required_counts = {
-        "backgrounds": len(catalog.get("backgrounds", [])),
-        "characters": len(catalog.get("characters", [])),
-        "effects": len(catalog.get("effects", [])),
-        "bgm": len(catalog.get("bgm", [])),
-    }
-    print("assets=" + " ".join(f"{key}:{value}" for key, value in required_counts.items()))
+    print(
+        "assets="
+        + " ".join(
+            [
+                f"backgrounds:{len(catalog.get('backgrounds', []))}",
+                f"characters:{len(catalog.get('characters', []))}",
+                f"effects:{len(catalog.get('effects', []))}",
+                f"bgm:{len(catalog.get('bgm', []))}",
+                f"audio:{len(catalog.get('audio', []))}",
+                f"motions:{len(catalog.get('motions', []))}",
+            ]
+        )
+    )
 
-    example_path = ROOT_DIR / EXAMPLE_SCRIPT
-    story = load_and_normalize_story(example_path, tts_enabled=False)
-    errors = validate_story_package(story)
-    if errors:
-        print(f"status=not-ready example={EXAMPLE_SCRIPT} error_count={len(errors)}")
-        for error in errors[:5]:
-            print(f"error={error}")
+    checks = []
+    for rel_path in (MAIN_SCRIPT, POSE_SCRIPT, EXTRACT_SCRIPT):
+        abs_path = ROOT_DIR / rel_path
+        ok, detail = _compile(abs_path)
+        checks.append((rel_path, ok, detail))
+
+    pose_cache_count = len(list((ROOT_DIR / POSE_DIR).glob("*.pose.json"))) if (ROOT_DIR / POSE_DIR).exists() else 0
+    print(f"pose_cache_dir={ROOT_DIR / POSE_DIR}")
+    print(f"pose_cache_count={pose_cache_count}")
+
+    failures = [item for item in checks if not item[1]]
+    for rel_path, ok, detail in checks:
+        print(f"check={rel_path} status={'ok' if ok else 'failed'} detail={detail}")
+
+    if failures:
+        print("status=not-ready")
         return 1
 
-    print(f"example={EXAMPLE_SCRIPT} scene_count={len(story.get('scenes', []))} title={story.get('meta', {}).get('title', '')}")
+    print(f"mainline={MAIN_SCRIPT}")
     print("status=ready")
     print("next=python3 scripts/list_assets.py --pretty")
-    print(f"next=python3 {EXAMPLE_SCRIPT} --cpu --output outputs/preview.mp4")
+    print("next=python3 scripts/extract_action_poses.py")
+    print("next=python3 scripts/generate_cangyun_escort_story.py --fast3 --force --output outputs/preview.mp4")
     return 0
 
 

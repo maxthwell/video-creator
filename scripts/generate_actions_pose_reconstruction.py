@@ -100,6 +100,13 @@ class CharacterPalette:
 @dataclass(frozen=True)
 class PoseFrame:
     keypoints: dict[str, np.ndarray]
+    people: tuple["PosePerson", ...] = ()
+
+
+@dataclass(frozen=True)
+class PosePerson:
+    track_id: int
+    keypoints: dict[str, np.ndarray]
 
 
 @dataclass(frozen=True)
@@ -113,6 +120,7 @@ class PoseTrack:
     y_bottom: float
     scale: float
     head_size: int
+    people_count: int
 
 
 DEFAULT_PALETTE = CharacterPalette(
@@ -374,23 +382,44 @@ def _open_ffmpeg_stream(
     return subprocess.Popen(command, stdin=subprocess.PIPE)
 
 
+def _parse_keypoint_items(
+    raw_items: list[dict[str, object]] | None,
+    *,
+    xs: list[float],
+    ys: list[float],
+) -> dict[str, np.ndarray]:
+    keypoints: dict[str, np.ndarray] = {}
+    for item in raw_items or []:
+        score = float(item.get("score") or 0.0)
+        if score <= 0.05:
+            continue
+        point = np.array([float(item["x"]), float(item["y"]), score], dtype=np.float32)
+        keypoints[str(item["name"])] = point
+        xs.append(float(point[0]))
+        ys.append(float(point[1]))
+    return keypoints
+
+
 def _load_track(path: Path, *, width: int, height: int) -> PoseTrack:
     payload = json.loads(path.read_text(encoding="utf-8"))
     frames: list[PoseFrame] = []
     xs: list[float] = []
     ys: list[float] = []
+    people_count = 0
     durations_ms = [float(value) for value in payload.get("durations_ms") or []]
     for raw_frame in payload.get("frames") or []:
-        keypoints: dict[str, np.ndarray] = {}
-        for item in raw_frame.get("keypoints") or []:
-            score = float(item.get("score") or 0.0)
-            if score <= 0.05:
+        keypoints = _parse_keypoint_items(raw_frame.get("keypoints"), xs=xs, ys=ys)
+        people: list[PosePerson] = []
+        for person_index, raw_person in enumerate(raw_frame.get("people") or []):
+            person_keypoints = _parse_keypoint_items(raw_person.get("keypoints"), xs=xs, ys=ys)
+            if not person_keypoints:
                 continue
-            point = np.array([float(item["x"]), float(item["y"]), score], dtype=np.float32)
-            keypoints[str(item["name"])] = point
-            xs.append(float(point[0]))
-            ys.append(float(point[1]))
-        frames.append(PoseFrame(keypoints=keypoints))
+            track_id = int(raw_person.get("track_id", person_index))
+            people.append(PosePerson(track_id=track_id, keypoints=person_keypoints))
+            people_count = max(people_count, track_id + 1)
+        if not people and keypoints:
+            people_count = max(people_count, 1)
+        frames.append(PoseFrame(keypoints=keypoints, people=tuple(people)))
     if not frames:
         raise ValueError(f"no frames in {path}")
     if not xs or not ys:
@@ -413,7 +442,7 @@ def _load_track(path: Path, *, width: int, height: int) -> PoseTrack:
         if "left_shoulder" in keypoints and "right_shoulder" in keypoints:
             head_sizes.append(abs(float(keypoints["right_shoulder"][0]) - float(keypoints["left_shoulder"][0])) * scale * 0.62)
     stable_head_size = int(round(float(np.median(head_sizes)))) if head_sizes else 42
-    min_head_size = max(28, int(round(height * 0.075)))
+    min_head_size = max(16, int(round(height * 0.04)))
     return PoseTrack(
         name=path.stem.replace(".pose", ""),
         source_path=str(payload.get("source_path") or ""),
@@ -423,8 +452,17 @@ def _load_track(path: Path, *, width: int, height: int) -> PoseTrack:
         x_center=(x_min + x_max) * 0.5,
         y_bottom=y_max,
         scale=scale,
-        head_size=max(min_head_size, int(round(stable_head_size * 1.68))),
+        head_size=max(min_head_size, int(round(stable_head_size * 0.64))),
+        people_count=max(1, people_count),
     )
+
+
+def _frame_people_map(frame: PoseFrame) -> dict[int, dict[str, np.ndarray]]:
+    if frame.people:
+        return {person.track_id: person.keypoints for person in frame.people if person.keypoints}
+    if frame.keypoints:
+        return {0: frame.keypoints}
+    return {}
 def _interpolate_point(a: np.ndarray | None, b: np.ndarray | None, alpha: float) -> np.ndarray | None:
     if a is None and b is None:
         return None
@@ -438,12 +476,17 @@ def _interpolate_point(a: np.ndarray | None, b: np.ndarray | None, alpha: float)
 
 
 def _sample_track(track: PoseTrack, t_s: float) -> dict[str, np.ndarray]:
+    people = _sample_people_tracks(track, t_s)
+    return people[0] if people else {}
+
+
+def _sample_people_tracks(track: PoseTrack, t_s: float) -> list[dict[str, np.ndarray]]:
     if not track.frames:
-        return {}
+        return []
     if len(track.frames) == 1 or t_s <= 0.0:
-        return {name: value.copy() for name, value in track.frames[0].keypoints.items()}
+        return [{name: value.copy() for name, value in people.items()} for _, people in sorted(_frame_people_map(track.frames[0]).items())]
     if t_s >= track.total_duration_s:
-        return {name: value.copy() for name, value in track.frames[-1].keypoints.items()}
+        return [{name: value.copy() for name, value in people.items()} for _, people in sorted(_frame_people_map(track.frames[-1]).items())]
 
     elapsed = 0.0
     for index in range(len(track.frames) - 1):
@@ -451,16 +494,22 @@ def _sample_track(track: PoseTrack, t_s: float) -> dict[str, np.ndarray]:
         next_elapsed = elapsed + duration_s
         if t_s <= next_elapsed:
             alpha = 0.0 if duration_s <= 1e-6 else (t_s - elapsed) / duration_s
-            current = track.frames[index].keypoints
-            nxt = track.frames[index + 1].keypoints
-            sampled: dict[str, np.ndarray] = {}
-            for name in set(current) | set(nxt):
-                point = _interpolate_point(current.get(name), nxt.get(name), alpha)
-                if point is not None:
-                    sampled[name] = point
-            return sampled
+            current_people = _frame_people_map(track.frames[index])
+            next_people = _frame_people_map(track.frames[index + 1])
+            sampled_people: list[dict[str, np.ndarray]] = []
+            for track_id in sorted(set(current_people) | set(next_people)):
+                current = current_people.get(track_id, {})
+                nxt = next_people.get(track_id, {})
+                sampled: dict[str, np.ndarray] = {}
+                for name in set(current) | set(nxt):
+                    point = _interpolate_point(current.get(name), nxt.get(name), alpha)
+                    if point is not None:
+                        sampled[name] = point
+                if sampled:
+                    sampled_people.append(sampled)
+            return sampled_people
         elapsed = next_elapsed
-    return {name: value.copy() for name, value in track.frames[-1].keypoints.items()}
+    return [{name: value.copy() for name, value in people.items()} for _, people in sorted(_frame_people_map(track.frames[-1]).items())]
 
 
 def _stage_point(track: PoseTrack, point: np.ndarray, *, width: int, height: int) -> tuple[float, float]:
@@ -498,62 +547,49 @@ def _draw_label(draw: ImageDraw.ImageDraw, track: PoseTrack, width: int) -> None
 
 
 def _head_center(points: dict[str, tuple[float, float]], size: int | None = None) -> tuple[float, float] | None:
-    head_markers = [points[key] for key in ("left_eye", "right_eye", "left_ear", "right_ear") if key in points]
-    marker_center: tuple[float, float] | None = None
-    if len(head_markers) >= 2:
-        marker_center = (
-            sum(point[0] for point in head_markers) / len(head_markers),
-            sum(point[1] for point in head_markers) / len(head_markers),
-        )
-    elif "nose" in points:
-        marker_center = points["nose"]
-    else:
-        ears = [points[key] for key in ("left_ear", "right_ear") if key in points]
-        if ears:
-            marker_center = (
-                sum(point[0] for point in ears) / len(ears),
-                sum(point[1] for point in ears) / len(ears),
-            )
-
     shoulders = [points[key] for key in ("left_shoulder", "right_shoulder") if key in points]
-    if shoulders:
+    hips = [points[key] for key in ("left_hip", "right_hip") if key in points]
+    if shoulders and hips:
         shoulder_center = (
             sum(point[0] for point in shoulders) / len(shoulders),
             sum(point[1] for point in shoulders) / len(shoulders),
         )
-        hip_points = [points[key] for key in ("left_hip", "right_hip") if key in points]
-        if hip_points:
-            hip_center = (
-                sum(point[0] for point in hip_points) / len(hip_points),
-                sum(point[1] for point in hip_points) / len(hip_points),
-            )
-            up_x = shoulder_center[0] - hip_center[0]
-            up_y = shoulder_center[1] - hip_center[1]
-        else:
-            up_x = 0.0
-            up_y = -1.0
+        hip_center = (
+            sum(point[0] for point in hips) / len(hips),
+            sum(point[1] for point in hips) / len(hips),
+        )
+        up_x = shoulder_center[0] - hip_center[0]
+        up_y = shoulder_center[1] - hip_center[1]
         up_len = max(1.0, float(np.hypot(up_x, up_y)))
         up_unit = (up_x / up_len, up_y / up_len)
-        # Keep the head visually attached above the shoulder line instead of
-        # letting the chin collapse onto the chest in relaxed standing poses.
-        head_offset = max(26.0, float(size or 42) * 1.02)
-        anchor = (
-            shoulder_center[0] + up_unit[0] * head_offset,
-            shoulder_center[1] + up_unit[1] * head_offset,
+        torso_center = (
+            (shoulder_center[0] + hip_center[0]) * 0.5,
+            (shoulder_center[1] + hip_center[1]) * 0.5,
         )
-        if marker_center is None:
-            return anchor
-        dx = marker_center[0] - anchor[0]
-        dy = marker_center[1] - anchor[1]
-        size_value = float(size or 42)
-        max_dx = max(8.0, size_value * 0.18)
-        max_up = max(8.0, size_value * 0.16)
-        max_down = max(4.0, size_value * 0.06)
-        dx = max(-max_dx, min(max_dx, dx))
-        dy = max(-max_up, min(max_down, dy))
-        return (anchor[0] + dx, anchor[1] + dy)
+        torso_height = max(18.0, float(np.hypot(hip_center[0] - shoulder_center[0], hip_center[1] - shoulder_center[1])))
+        body_ry = torso_height * 0.85
+        head_ry = float(size or 42) * 0.80
+        tangent_gap = max(1.0, float(size or 42) * 0.04)
+        return (
+            torso_center[0] + up_unit[0] * (body_ry + head_ry + tangent_gap),
+            torso_center[1] + up_unit[1] * (body_ry + head_ry + tangent_gap),
+        )
 
-    return marker_center
+    head_markers = [points[key] for key in ("left_eye", "right_eye", "left_ear", "right_ear") if key in points]
+    if len(head_markers) >= 2:
+        return (
+            sum(point[0] for point in head_markers) / len(head_markers),
+            sum(point[1] for point in head_markers) / len(head_markers),
+        )
+    if "nose" in points:
+        return points["nose"]
+    ears = [points[key] for key in ("left_ear", "right_ear") if key in points]
+    if ears:
+        return (
+            sum(point[0] for point in ears) / len(ears),
+            sum(point[1] for point in ears) / len(ears),
+        )
+    return None
 
 
 def _paste_texture(canvas: Image.Image, texture: Image.Image, box: tuple[int, int, int, int], mask: Image.Image | None = None) -> None:
@@ -678,6 +714,25 @@ def _draw_torso_texture(image: Image.Image, stage_points: dict[str, tuple[float,
     )
 
 
+def _head_rotation_deg(stage_points: dict[str, tuple[float, float]]) -> float:
+    shoulders = [stage_points[key] for key in ("left_shoulder", "right_shoulder") if key in stage_points]
+    hips = [stage_points[key] for key in ("left_hip", "right_hip") if key in stage_points]
+    if shoulders and hips:
+        shoulder_center = (
+            sum(point[0] for point in shoulders) / len(shoulders),
+            sum(point[1] for point in shoulders) / len(shoulders),
+        )
+        hip_center = (
+            sum(point[0] for point in hips) / len(hips),
+            sum(point[1] for point in hips) / len(hips),
+        )
+        return 90.0 - float(np.degrees(np.arctan2(hip_center[1] - shoulder_center[1], hip_center[0] - shoulder_center[0])))
+    if len(shoulders) == 2:
+        left, right = shoulders
+        return -float(np.degrees(np.arctan2(right[1] - left[1], right[0] - left[0]))) * 0.55
+    return 0.0
+
+
 def _draw_panda_head(
     image: Image.Image,
     draw: ImageDraw.ImageDraw,
@@ -691,33 +746,61 @@ def _draw_panda_head(
     if center is None:
         return
     cx, cy = center
+    angle_deg = _head_rotation_deg(stage_points)
     rx = size * 0.98
     ry = size * 0.80
     ear_r = size * 0.34
-    ear_y = cy - ry * 0.98
-    left_ear_x = cx - rx * 0.64
-    right_ear_x = cx + rx * 0.64
-    patch_rx = rx * 0.24
-    patch_ry = ry * 0.33
-    patch_y = cy - ry * 0.04
-    patch_dx = rx * 0.32
-    nose_w = rx * 0.16
-    nose_h = ry * 0.13
-    nose_y = cy + ry * 0.22
-    draw.ellipse((left_ear_x - ear_r, ear_y - ear_r, left_ear_x + ear_r, ear_y + ear_r), fill=EAR_FILL, outline=EAR_OUTLINE, width=2)
-    draw.ellipse((right_ear_x - ear_r, ear_y - ear_r, right_ear_x + ear_r, ear_y + ear_r), fill=EAR_FILL, outline=EAR_OUTLINE, width=2)
-    x0 = max(0, int(round(cx - rx)))
-    y0 = max(0, int(round(cy - ry)))
-    x1 = min(image.width, int(round(cx + rx)))
-    y1 = min(image.height, int(round(cy + ry)))
+    local_w = max(12, int(round(rx * 2.0 + ear_r * 2.6 + 18.0)))
+    local_h = max(12, int(round(ry * 2.0 + ear_r * 2.2 + 18.0)))
+    head_layer = Image.new("RGBA", (local_w, local_h), (0, 0, 0, 0))
+    head_draw = ImageDraw.Draw(head_layer, "RGBA")
+    local_cx = local_w * 0.5
+    local_cy = local_h * 0.57
+    ear_y = local_cy - ry * 0.98
+    left_ear_x = local_cx - rx * 0.64
+    right_ear_x = local_cx + rx * 0.64
+    outline_w = max(2, int(round(size * 0.05)))
+    head_draw.ellipse((left_ear_x - ear_r, ear_y - ear_r, left_ear_x + ear_r, ear_y + ear_r), fill=EAR_FILL, outline=EAR_OUTLINE, width=outline_w)
+    head_draw.ellipse((right_ear_x - ear_r, ear_y - ear_r, right_ear_x + ear_r, ear_y + ear_r), fill=EAR_FILL, outline=EAR_OUTLINE, width=outline_w)
+    x0 = max(0, int(round(local_cx - rx)))
+    y0 = max(0, int(round(local_cy - ry)))
+    x1 = min(head_layer.width, int(round(local_cx + rx)))
+    y1 = min(head_layer.height, int(round(local_cy + ry)))
     if x1 <= x0 or y1 <= y0:
         return
     mask = Image.new("L", (x1 - x0, y1 - y0), 0)
     mask_draw = ImageDraw.Draw(mask)
     mask_draw.ellipse((0, 0, x1 - x0, y1 - y0), fill=255)
-    draw.ellipse((cx - rx, cy - ry, cx + rx, cy + ry), fill=HEAD_FILL)
-    _paste_texture(image, face_texture or textures.face, (x0, y0, x1, y1), mask=mask)
-    draw.ellipse((cx - rx, cy - ry, cx + rx, cy + ry), outline=HEAD_OUTLINE, width=3)
+    head_draw.ellipse((local_cx - rx, local_cy - ry, local_cx + rx, local_cy + ry), fill=HEAD_FILL)
+    _paste_texture(head_layer, face_texture or textures.face, (x0, y0, x1, y1), mask=mask)
+    head_draw.ellipse((local_cx - rx, local_cy - ry, local_cx + rx, local_cy + ry), outline=HEAD_OUTLINE, width=outline_w)
+    rotated = head_layer.rotate(angle_deg, expand=True, resample=Image.Resampling.BICUBIC)
+    image.alpha_composite(rotated, (int(round(cx - rotated.width * 0.5)), int(round(cy - rotated.height * 0.5))))
+
+
+def _draw_pose_actor(
+    image: Image.Image,
+    stage_points: dict[str, tuple[float, float]],
+    *,
+    head_size: int,
+    textures: TexturePack = TEXTURES,
+) -> None:
+    palette = _palette_for_character(textures.character_id)
+    draw = ImageDraw.Draw(image)
+    _draw_torso(draw, stage_points, palette)
+    _draw_torso_texture(image, stage_points, textures)
+    draw = ImageDraw.Draw(image)
+    for start, end in POSE_EDGES:
+        if start not in stage_points or end not in stage_points:
+            continue
+        draw.line((*stage_points[start], *stage_points[end]), fill=_edge_color(start, palette), width=LIMB_WIDTH, joint="curve")
+    for name, (x, y) in stage_points.items():
+        if name in {"nose", "left_hip", "right_hip"}:
+            continue
+        radius = JOINT_RADIUS if name != "nose" else JOINT_RADIUS - 1
+        color = _joint_color(name, palette)
+        draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill=color)
+    _draw_panda_head(image, draw, stage_points, size=head_size, textures=textures)
 
 
 def _render_frame(
@@ -734,21 +817,26 @@ def _render_frame(
     _draw_preview(image, track, width, height)
     _draw_label(draw, track, width)
     stage_points = {name: _stage_point(track, point, width=width, height=height) for name, point in points.items()}
-    palette = _palette_for_character(textures.character_id)
-    _draw_torso(draw, stage_points, palette)
-    _draw_torso_texture(image, stage_points, textures)
+    _draw_pose_actor(image, stage_points, head_size=track.head_size, textures=textures)
+    return image.convert("RGB")
+
+
+def _render_people_frame(
+    track: PoseTrack,
+    people_points: list[dict[str, np.ndarray]],
+    *,
+    width: int,
+    height: int,
+    textures: TexturePack = TEXTURES,
+) -> Image.Image:
+    image = Image.new("RGBA", (width, height), (247, 244, 236, 255))
     draw = ImageDraw.Draw(image)
-    for start, end in POSE_EDGES:
-        if start not in stage_points or end not in stage_points:
-            continue
-        draw.line((*stage_points[start], *stage_points[end]), fill=_edge_color(start, palette), width=LIMB_WIDTH, joint="curve")
-    for name, (x, y) in stage_points.items():
-        if name in {"nose", "left_hip", "right_hip"}:
-            continue
-        radius = JOINT_RADIUS if name != "nose" else JOINT_RADIUS - 1
-        color = _joint_color(name, palette)
-        draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill=color)
-    _draw_panda_head(image, draw, stage_points, size=track.head_size, textures=textures)
+    _draw_grid(draw, width, height)
+    _draw_preview(image, track, width, height)
+    _draw_label(draw, track, width)
+    for points in people_points:
+        stage_points = {name: _stage_point(track, point, width=width, height=height) for name, point in points.items()}
+        _draw_pose_actor(image, stage_points, head_size=track.head_size, textures=textures)
     return image.convert("RGB")
 
 
@@ -787,14 +875,14 @@ def render_video(
         assert ffmpeg_proc.stdin is not None
         for track in tracks:
             hold_frames = max(1, int(round(hold_s * fps)))
-            opening = _render_frame(track, _sample_track(track, 0.0), width=width, height=height, textures=textures)
+            opening = _render_people_frame(track, _sample_people_tracks(track, 0.0), width=width, height=height, textures=textures)
             opening_bytes = opening.tobytes()
             for _ in range(hold_frames):
                 ffmpeg_proc.stdin.write(opening_bytes)
             total_frames = max(1, int(round(track.total_duration_s * fps)))
             for frame_index in range(total_frames):
                 t_s = min(track.total_duration_s, frame_index / fps)
-                frame = _render_frame(track, _sample_track(track, t_s), width=width, height=height, textures=textures)
+                frame = _render_people_frame(track, _sample_people_tracks(track, t_s), width=width, height=height, textures=textures)
                 ffmpeg_proc.stdin.write(frame.tobytes())
     finally:
         if ffmpeg_proc.stdin is not None:

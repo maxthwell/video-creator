@@ -9,21 +9,33 @@ import sys
 
 def main() -> int:
     os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
-    checks = []
-    required_modules = ("pygame", "PIL")
-    optional_modules = ("panda3d", "direct")
+    required_modules = (
+        "PIL",
+        "numpy",
+        "cv2",
+        "onnxruntime",
+        "edge_tts",
+    )
+    optional_modules = (
+        "panda3d",
+        "direct",
+    )
+    checks: list[tuple[str, str]] = []
+
     for module_name in required_modules:
         try:
             importlib.import_module(module_name)
             checks.append((module_name, "ok"))
         except ModuleNotFoundError:
             checks.append((module_name, "missing"))
+
     for module_name in optional_modules:
         try:
             importlib.import_module(module_name)
-            checks.append((module_name, "ok (optional legacy renderer)"))
+            checks.append((module_name, "ok (optional single-chain renderer support)"))
         except ModuleNotFoundError:
-            checks.append((module_name, "missing (optional legacy renderer)"))
+            checks.append((module_name, "missing (optional single-chain renderer support)"))
+
     checks.append(("ffmpeg", "ok" if shutil.which("ffmpeg") else "missing"))
 
     for name, status in checks:

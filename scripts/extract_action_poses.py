@@ -206,6 +206,49 @@ def _pick_primary_detection(detections: list[Detection]) -> Detection | None:
     )
 
 
+def _detection_center_x(detection: Detection) -> float:
+    return (float(detection.bbox[0]) + float(detection.bbox[2])) * 0.5
+
+
+def _pick_people_slots(
+    detections: list[Detection],
+    *,
+    max_people: int,
+    previous_centers: list[float | None],
+) -> list[Detection | None]:
+    if max_people <= 0:
+        return []
+    ranked = sorted(
+        detections,
+        key=lambda item: (
+            item.score,
+            max(0.0, item.bbox[2] - item.bbox[0]) * max(0.0, item.bbox[3] - item.bbox[1]),
+        ),
+        reverse=True,
+    )[:max_people]
+    if not ranked:
+        return [None] * max_people
+
+    remaining = ranked[:]
+    slots: list[Detection | None] = [None] * max_people
+    if any(center is not None for center in previous_centers):
+        for slot_index, previous_center in enumerate(previous_centers[:max_people]):
+            if previous_center is None or not remaining:
+                continue
+            best_index = min(
+                range(len(remaining)),
+                key=lambda idx: abs(_detection_center_x(remaining[idx]) - previous_center),
+            )
+            slots[slot_index] = remaining.pop(best_index)
+    for detection in sorted(remaining, key=_detection_center_x):
+        try:
+            empty_index = slots.index(None)
+        except ValueError:
+            break
+        slots[empty_index] = detection
+    return slots
+
+
 def _smooth_tracks(track: list[np.ndarray | None], alpha: float) -> list[np.ndarray | None]:
     smoothed: list[np.ndarray | None] = []
     previous: np.ndarray | None = None
@@ -262,29 +305,37 @@ def _frame_summary(points: np.ndarray | None) -> dict[str, Any]:
     }
 
 
-def _draw_preview(frames: list[np.ndarray], track: list[np.ndarray | None], path: Path) -> None:
+def _draw_preview(frames: list[np.ndarray], tracks: list[list[np.ndarray | None]], path: Path) -> None:
     sample_count = min(9, len(frames))
     if sample_count <= 0:
         return
     indices = np.linspace(0, len(frames) - 1, sample_count, dtype=int)
     thumbs: list[Image.Image] = []
+    colors = [
+        ((255, 120, 40), (40, 240, 255)),
+        ((116, 255, 80), (255, 104, 184)),
+        ((255, 210, 64), (120, 180, 255)),
+    ]
     for frame_index in indices:
         frame = cv2.cvtColor(frames[int(frame_index)], cv2.COLOR_BGR2RGB)
         image = Image.fromarray(frame).convert("RGB")
         draw = ImageDraw.Draw(image)
-        points = track[int(frame_index)]
-        if points is not None:
+        for track_index, track in enumerate(tracks):
+            points = track[int(frame_index)]
+            if points is None:
+                continue
+            edge_color, point_color = colors[track_index % len(colors)]
             for start, end in POSE_EDGES:
                 if points[start, 2] > 0.1 and points[end, 2] > 0.1:
                     draw.line(
                         (float(points[start, 0]), float(points[start, 1]), float(points[end, 0]), float(points[end, 1])),
-                        fill=(255, 120, 40),
+                        fill=edge_color,
                         width=4,
                     )
             for point in points:
                 if point[2] > 0.1:
                     radius = 4
-                    draw.ellipse((point[0] - radius, point[1] - radius, point[0] + radius, point[1] + radius), fill=(40, 240, 255))
+                    draw.ellipse((point[0] - radius, point[1] - radius, point[0] + radius, point[1] + radius), fill=point_color)
         image.thumbnail((320, 320))
         thumbs.append(image)
 
@@ -310,9 +361,12 @@ def _extract_file(
     conf_threshold: float,
     iou_threshold: float,
     smooth_alpha: float,
+    max_people: int,
 ) -> Path:
     frames, durations = _load_frames(path)
-    track: list[np.ndarray | None] = []
+    primary_track: list[np.ndarray | None] = []
+    people_tracks: list[list[np.ndarray | None]] = [[] for _ in range(max_people)]
+    previous_centers: list[float | None] = [None] * max_people
     input_name = session.get_inputs()[0].name
     for frame in frames:
         tensor, scale, pad = _prepare_tensor(frame)
@@ -326,22 +380,42 @@ def _extract_file(
             iou_threshold=iou_threshold,
         )
         primary = _pick_primary_detection(detections)
-        track.append(primary.keypoints if primary is not None else None)
+        primary_track.append(primary.keypoints if primary is not None else None)
+        slot_detections = _pick_people_slots(detections, max_people=max_people, previous_centers=previous_centers)
+        for index in range(max_people):
+            detection = slot_detections[index] if index < len(slot_detections) else None
+            people_tracks[index].append(detection.keypoints if detection is not None else None)
+            previous_centers[index] = _detection_center_x(detection) if detection is not None else previous_centers[index]
 
-    smoothed = _smooth_tracks(track, alpha=smooth_alpha)
+    smoothed_primary = _smooth_tracks(primary_track, alpha=smooth_alpha)
+    smoothed_people = [_smooth_tracks(track, alpha=smooth_alpha) for track in people_tracks]
     relative = path.relative_to(ACTIONS_DIR)
     output_path = output_dir / relative.with_suffix(".pose.json")
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    payload_frames: list[dict[str, Any]] = []
+    for frame_index, primary_points in enumerate(smoothed_primary):
+        frame_payload = _frame_summary(primary_points)
+        people_payload = []
+        for person_index, people_track in enumerate(smoothed_people):
+            points = people_track[frame_index]
+            if points is None or not np.any(points[:, 2] > 0.05):
+                continue
+            person_payload = _frame_summary(points)
+            person_payload["track_id"] = person_index
+            people_payload.append(person_payload)
+        frame_payload["people"] = people_payload
+        payload_frames.append(frame_payload)
     payload = {
         "source_path": str(relative).replace("\\", "/"),
         "model_path": str(DEFAULT_MODEL_PATH if session is not None else ""),
         "frame_count": len(frames),
         "durations_ms": durations,
-        "frames": [_frame_summary(points) for points in smoothed],
+        "frames": payload_frames,
     }
     output_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     preview_path = preview_dir / relative.with_suffix(".preview.jpg")
-    _draw_preview(frames, smoothed, preview_path)
+    preview_tracks = [smoothed_primary, *smoothed_people]
+    _draw_preview(frames, preview_tracks, preview_path)
     return output_path
 
 
@@ -354,6 +428,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--conf-threshold", type=float, default=0.35)
     parser.add_argument("--iou-threshold", type=float, default=0.45)
     parser.add_argument("--smooth-alpha", type=float, default=0.42)
+    parser.add_argument("--max-people", type=int, default=2)
     return parser.parse_args()
 
 
@@ -382,6 +457,7 @@ def main() -> int:
                 conf_threshold=float(args.conf_threshold),
                 iou_threshold=float(args.iou_threshold),
                 smooth_alpha=float(args.smooth_alpha),
+                max_people=max(1, int(args.max_people)),
             )
         )
         print(written[-1])
