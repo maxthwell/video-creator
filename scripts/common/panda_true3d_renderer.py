@@ -552,7 +552,7 @@ class PandaTrue3DRenderer:
         try:
             stat = Path(path).stat()
             bg_version = PROP_WHITE_BG_VERSION if (is_prop_asset or is_character_asset) else 0
-            face_crop_version = 9 if is_face_asset else 0
+            face_crop_version = 10 if is_face_asset else 0
             cache_key = f"{path}|{stat.st_size}|{int(stat.st_mtime_ns)}|propbgv={bg_version}|facecrop={face_crop_version}"
         except OSError:
             cache_key = path
@@ -623,10 +623,10 @@ class PandaTrue3DRenderer:
         width = right - left
         height = bottom - top
         crop_width = max(1, int(round(width * 0.90)))
-        crop_height = max(1, int(round(min(height * 0.66, max(width * 0.60, height * 0.48)))))
+        crop_height = max(1, int(round(min(height * 0.76, max(width * 0.66, height * 0.58)))))
         cx = (left + right) * 0.5
         x0 = int(round(cx - crop_width * 0.5))
-        y0 = int(round(top + max(0.0, (height - crop_height) * 0.44)))
+        y0 = int(round(top + max(0.0, (height - crop_height) * 0.28)))
         x1 = x0 + crop_width
         y1 = y0 + crop_height
         if x0 < 0:
