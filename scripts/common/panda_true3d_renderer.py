@@ -552,7 +552,7 @@ class PandaTrue3DRenderer:
         try:
             stat = Path(path).stat()
             bg_version = PROP_WHITE_BG_VERSION if (is_prop_asset or is_character_asset) else 0
-            face_crop_version = 11 if is_face_asset else 0
+            face_crop_version = 13 if is_face_asset else 0
             cache_key = f"{path}|{stat.st_size}|{int(stat.st_mtime_ns)}|propbgv={bg_version}|facecrop={face_crop_version}"
         except OSError:
             cache_key = path
@@ -622,13 +622,13 @@ class PandaTrue3DRenderer:
         left, top, right, bottom = bbox
         width = right - left
         height = bottom - top
-        crop_width = max(1, int(round(width * 0.90)))
-        crop_height = max(1, int(round(min(height * 0.76, max(width * 0.66, height * 0.58)))))
-        cx = (left + right) * 0.5
-        x0 = int(round(cx - crop_width * 0.5))
-        y0 = int(round(top + max(0.0, (height - crop_height) * 0.28)))
-        x1 = x0 + crop_width
-        y1 = y0 + crop_height
+        pad_left_right = int(round(width * 0.10))
+        pad_top = int(round(height * 0.06))
+        pad_bottom = int(round(height * 0.18))
+        x0 = left - pad_left_right
+        y0 = top - pad_top
+        x1 = right + pad_left_right
+        y1 = bottom + pad_bottom
         if x0 < 0:
             x1 -= x0
             x0 = 0
@@ -648,14 +648,13 @@ class PandaTrue3DRenderer:
         scale = min(
             target_size[0] / max(1, cropped.width),
             target_size[1] / max(1, cropped.height),
-            1.0,
         )
         resized_width = max(1, int(round(cropped.width * scale)))
         resized_height = max(1, int(round(cropped.height * scale)))
         resized = cropped.resize((resized_width, resized_height), Image.Resampling.LANCZOS)
         composed = Image.new("RGBA", target_size, (0, 0, 0, 0))
         paste_x = (target_size[0] - resized_width) // 2
-        paste_y = max(0, int(round((target_size[1] - resized_height) * 0.18)))
+        paste_y = max(0, int(round((target_size[1] - resized_height) * 0.10)))
         composed.alpha_composite(resized, (paste_x, paste_y))
         mask = Image.new("L", target_size, 0)
         draw = ImageDraw.Draw(mask)
@@ -1323,7 +1322,7 @@ class PandaTrue3DRenderer:
             self._apply_texture(pelvis_card, self._rounded_rect_texture(f"pelvis-{actor_id}", (32, 32), 16, alpha=0.0))
             self._apply_texture(neck_card, self._rounded_rect_texture(f"neck-{actor_id}", (34, 112), 16, alpha=1.0))
             self._apply_texture(head_base, self._shape_texture(f"head-{actor_id}", (240, 184), alpha=1.0))
-            face_card = self._attach_card(actor_root, 0.735, 0.615, f"face-{actor_id}", (0.0, 0.03, 2.08), (1.0, 1.0, 1.0, 1.0))
+            face_card = self._attach_card(actor_root, 0.98, 0.82, f"face-{actor_id}", (0.0, 0.03, 2.08), (1.0, 1.0, 1.0, 1.0))
             ear_left = self._attach_card(actor_root, 0.42, 0.42, f"ear-left-{actor_id}", (-0.27, -0.02, 2.40), (0.08, 0.08, 0.08, 1.0))
             ear_right = self._attach_card(actor_root, 0.42, 0.42, f"ear-right-{actor_id}", (0.27, -0.02, 2.40), (0.08, 0.08, 0.08, 1.0))
             joints = {}
@@ -1847,13 +1846,13 @@ class PandaTrue3DRenderer:
     def _apply_camera(self, scene: dict[str, Any], time_ms: int) -> None:
         state = self._camera_state(scene, time_ms)
         room = self._room_dims
-        distance = max(room["depth"] * 2.58, room["width"] * 1.12)
+        distance = max(room["depth"] * 3.10, room["width"] * 1.34)
         floor_z = -room["height"] / 2.0 + room["floor_thickness"] / 2.0
         shoulder_level_z = floor_z + room["height"] * 0.29
         cam_x = state["x"] * 0.70
         cam_y = -distance / max(0.55, state["zoom"])
         cam_z = shoulder_level_z + state["z"] * 0.12
-        self._lens.setFov(max(21.5, 37.0 / max(0.5, state["zoom"])))
+        self._lens.setFov(max(23.5, 40.0 / max(0.5, state["zoom"])))
         self.base.camera.setPos(cam_x, cam_y, cam_z)
         self.base.camera.lookAt(state["x"] * 0.22, 0.0, shoulder_level_z + room["height"] * 0.18 + state["z"] * 0.10)
         if self.fast_card_mode:
