@@ -570,13 +570,12 @@ def _draw_torso_texture(image: Image.Image, stage_points: dict[str, tuple[float,
     torso_width = max(24.0, float(np.hypot(rs[0] - ls[0], rs[1] - ls[1])))
     torso_height = max(28.0, float(np.hypot(hip_center[0] - shoulder_center[0], hip_center[1] - shoulder_center[1])))
     angle = 90.0 - np.degrees(np.arctan2(hip_center[1] - shoulder_center[1], hip_center[0] - shoulder_center[0]))
-    outfit_center = (torso_center[0], torso_center[1] + torso_height * 0.08)
     _paste_rotated_texture(
         image,
         textures.outfit,
-        (torso_center[0], torso_center[1] + torso_height * 0.14),
-        width=torso_width * 1.42,
-        height=torso_height * 1.88,
+        (torso_center[0], torso_center[1] + torso_height * 0.20),
+        width=torso_width * 1.26,
+        height=torso_height * 2.24,
         angle_deg=angle,
     )
 

@@ -183,7 +183,7 @@ SCENES: list[SceneSpec] = [
         scene_id="05",
         title="狮子楼前",
         actors=(
-            ActorSpec("wusong", "武松", "general-guard", "zh-CN-YunxiNeural", "站立", "angry", -190, 0.98),
+            ActorSpec("wusong", "武松", "general-guard", "zh-CN-YunxiNeural", "站立", "angry", -190, 0.98, True),
             ActorSpec("ximen", "西门庆", "detective-sleek", "zh-CN-YunjianNeural", "站立", "skeptical", 180, 0.9),
         ),
         lines=(
@@ -226,7 +226,7 @@ SCENES: list[SceneSpec] = [
         scene_id="07",
         title="快活林斗口",
         actors=(
-            ActorSpec("wusong", "武松", "general-guard", "zh-CN-YunxiNeural", "站立", "excited", -170, 0.98),
+            ActorSpec("wusong", "武松", "general-guard", "zh-CN-YunxiNeural", "站立", "excited", -170, 0.98, True),
             ActorSpec("jms", "蒋门神", "emperor-ming", "zh-CN-YunjianNeural", "站立", "angry", 180, 0.92),
         ),
         lines=(
@@ -273,7 +273,7 @@ SCENES: list[SceneSpec] = [
         scene_id="09",
         title="鸳鸯楼夜决",
         actors=(
-            ActorSpec("wusong", "武松", "general-guard", "zh-CN-YunxiNeural", "站立", "angry", -190, 0.98),
+            ActorSpec("wusong", "武松", "general-guard", "zh-CN-YunxiNeural", "站立", "angry", -190, 0.98, True),
             ActorSpec("zhang", "张都监", "detective-sleek", "zh-CN-YunjianNeural", "站立", "skeptical", 180, 0.88),
         ),
         lines=(
@@ -367,7 +367,8 @@ def _textures(character_id: str) -> poseviz.TexturePack:
 
 def _all_head_size() -> int:
     values = [_track(actor.track_name).head_size for scene in SCENES for actor in scene.actors]
-    return max(70, min(90, int(round(sum(values) / len(values)))))
+    base = int(round(sum(values) / len(values) * 0.88))
+    return max(62, min(80, base))
 
 
 async def _synthesize_tts(text: str, voice: str, output_path: Path) -> None:
